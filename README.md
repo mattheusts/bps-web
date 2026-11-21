@@ -21,6 +21,15 @@ O Vite encaminha `/api` para `VITE_API_PROXY`, que por padrão é `http://localh
 | `npm run preview` | Serve o build localmente, com o proxy da API |
 | `npm run lint` | Roda o linter |
 
+## Deploy no Railway
+
+O GitHub Actions valida cada PR e push. Na `main`, depois de passar, publica com `railway up`. O deploy fica desligado até a variável `RAILWAY_SERVICE` existir no repositório.
+
+1. No mesmo projeto da API, crie um serviço vazio chamado `bps-web`, sem conectar ao GitHub.
+2. Defina `API_URL=http://${{bps-api.RAILWAY_PRIVATE_DOMAIN}}:3000` e `PORT=8080`.
+3. Configure o healthcheck como `/healthz` e gere um domínio público para este serviço.
+4. Crie um token de projeto para o ambiente `production` e salve no GitHub: secret `RAILWAY_TOKEN` e variável `RAILWAY_SERVICE=bps-web`.
+
 ## Telas
 
 | Tela | Requisitos |

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run build
+      - name: Construir a imagem de produção
+        run: docker build -t bps-web:ci .
+      - name: Testar a imagem
+        run: |
+          docker run -d --name bps-web-ci -p 8080:8080 -e API_URL=http://127.0.0.1:9 bps-web:ci
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/healthz && curl -fsS http://127.0.0.1:8080/mapa | grep -q 'id="root"'; then exit 0; fi
+            sleep 1
+          done
+          docker logs bps-web-ci
+          exit 1
+
+  deploy:
+    needs: verificar
+    # Fica desligado até a variável RAILWAY_SERVICE ser criada no repositório.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.RAILWAY_SERVICE != ''
+    runs-on: ubuntu-latest
+    concurrency:
+      group: railway-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm install -g @railway/cli@5.75.0
+      - name: Publicar no Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_SERVICE: ${{ vars.RAILWAY_SERVICE }}
+          RAILWAY_ENVIRONMENT: ${{ vars.RAILWAY_ENVIRONMENT || 'production' }}
+        run: railway up --service "$RAILWAY_SERVICE" --environment "$RAILWAY_ENVIRONMENT" --ci
