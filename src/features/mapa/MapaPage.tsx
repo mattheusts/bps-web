@@ -31,9 +31,9 @@ function Ranking<T>({
   if (!linhas.length) return <p className="text-sm text-muted-foreground">Sem dados.</p>
   const maximo = Math.max(...linhas.map(valor), 1)
   return (
-    <ul className="grid gap-3">
+    <ul className="grid grid-cols-1 gap-3">
       {linhas.map((l) => (
-        <li key={chave(l)} className="text-sm">
+        <li key={chave(l)} className="min-w-0 text-sm">
           <div className="flex justify-between gap-3">
             <span className="min-w-0 truncate">{nome(l)}</span>
             <span className="shrink-0 font-medium tabular-nums">{fmt.moedaCurta(valor(l))}</span>
@@ -211,7 +211,7 @@ export default function MapaPage() {
           )}
         </Painel>
 
-        <div className="grid gap-4">
+        <div className="grid min-w-0 grid-cols-1 gap-4">
           {resumo.isError && <Erro erro={resumo.error} tentar={() => resumo.refetch()} />}
           {resumo.isPending && <Skeleton className="h-96" />}
           {k && resumo.data && (
