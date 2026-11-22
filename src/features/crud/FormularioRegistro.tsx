@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2Icon } from 'lucide-react'
+import { Fragment } from 'react'
 import { Controller, useForm, type RegisterOptions } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Erro } from '@/components/estados'
@@ -18,6 +19,9 @@ import type { ColunaMeta, Registro, TabelaMeta } from '@/types/api'
 import { FkSelect } from './FkSelect'
 
 type Valores = Record<string, string>
+
+/** Só existe no formulário: nunca é enviado à API. */
+const CONFIRMACAO_SENHA = '__confirmacao_senha'
 
 const campoLargo = (c: ColunaMeta) => !!c.fk || c.tipo === 'text' || (c.tipo === 'string' && (c.tamanho ?? 0) > 60)
 
@@ -49,8 +53,11 @@ function Formulario({
     control,
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
-  } = useForm<Valores>({ defaultValues: valoresIniciais(campos, registro) })
+  } = useForm<Valores>({
+    defaultValues: { ...valoresIniciais(campos, registro), [CONFIRMACAO_SENHA]: '' },
+  })
 
   const salvar = useMutation({
     mutationFn: (dados: Valores) =>
@@ -70,6 +77,7 @@ function Formulario({
     return {
       required: exigido ? `${c.rotulo} é obrigatório.` : false,
       ...(c.tipo === 'senha' && {
+        deps: [CONFIRMACAO_SENHA],
         validate: (v: string) => !v || v.length >= 8 || 'A senha precisa ter pelo menos 8 caracteres.',
       }),
       ...(c.tamanho && !c.cnpj && c.tipo === 'string'
@@ -174,19 +182,50 @@ function Formulario({
   }
 
   return (
-    <form onSubmit={handleSubmit((d) => salvar.mutate(d))} noValidate>
+    <form
+      onSubmit={handleSubmit(({ [CONFIRMACAO_SENHA]: _confirmacao, ...dados }) => salvar.mutate(dados))}
+      noValidate
+    >
       <div className="grid max-h-[62vh] gap-4 overflow-y-auto p-1 sm:grid-cols-2">
         {campos.map((c) => {
           const exigido = c.tipo === 'senha' ? !editando : c.obrigatorio
           return (
-            <div key={c.nome} className={cn('grid content-start gap-1.5', campoLargo(c) && 'sm:col-span-2')}>
-              <Label htmlFor={c.nome}>
-                {c.rotulo}
-                {exigido && <span className="text-destructive">*</span>}
-              </Label>
-              {controle(c)}
-              {errors[c.nome] && <p className="text-xs text-destructive">{errors[c.nome]?.message}</p>}
-            </div>
+            <Fragment key={c.nome}>
+              <div className={cn('grid content-start gap-1.5', campoLargo(c) && 'sm:col-span-2')}>
+                <Label htmlFor={c.nome}>
+                  {c.rotulo}
+                  {exigido && <span className="text-destructive">*</span>}
+                </Label>
+                {controle(c)}
+                {errors[c.nome] && <p className="text-xs text-destructive">{errors[c.nome]?.message}</p>}
+              </div>
+              {c.tipo === 'senha' && (
+                <div className="grid content-start gap-1.5">
+                  <Label htmlFor={CONFIRMACAO_SENHA}>
+                    Confirmar senha
+                    {exigido && <span className="text-destructive">*</span>}
+                  </Label>
+                  <Input
+                    id={CONFIRMACAO_SENHA}
+                    type="password"
+                    autoComplete="new-password"
+                    aria-invalid={!!errors[CONFIRMACAO_SENHA]}
+                    placeholder="Repita a senha"
+                    {...register(CONFIRMACAO_SENHA, {
+                      validate: (v) => {
+                        const senha = getValues(c.nome)
+                        if (!senha && !v) return true
+                        if (!v) return 'Confirme a senha.'
+                        return v === senha || 'As senhas não coincidem.'
+                      },
+                    })}
+                  />
+                  {errors[CONFIRMACAO_SENHA] && (
+                    <p className="text-xs text-destructive">{errors[CONFIRMACAO_SENHA]?.message}</p>
+                  )}
+                </div>
+              )}
+            </Fragment>
           )
         })}
       </div>
