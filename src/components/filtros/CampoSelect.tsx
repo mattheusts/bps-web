@@ -25,7 +25,7 @@ export function CampoSelect({
   desabilitado?: boolean
 }) {
   return (
-    <div className="grid min-w-36 gap-1.5">
+    <div className="grid min-w-0 grid-cols-1 gap-1.5 md:min-w-36">
       <Label className="text-xs text-muted-foreground">{rotulo}</Label>
       <Select
         value={valor || (todos ? TODOS : undefined)}

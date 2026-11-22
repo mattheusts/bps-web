@@ -232,7 +232,7 @@ export function AppLayout() {
 
       <SidebarInset className="min-w-0">
         <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background/85 px-4 backdrop-blur">
-          <SidebarTrigger aria-label="Alternar menu" />
+          <SidebarTrigger aria-label="Alternar menu" className="size-9" />
           <Separator orientation="vertical" className="mx-1 data-[orientation=vertical]:h-5" />
           <span className="truncate text-sm font-medium">{atual}</span>
           <span className="ml-auto">

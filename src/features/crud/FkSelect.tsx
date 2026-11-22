@@ -60,7 +60,7 @@ export function FkSelect({
           <ChevronsUpDownIcon className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-(--radix-popover-trigger-width) min-w-72 p-0" align="start">
+      <PopoverContent className="w-(--radix-popover-trigger-width) min-w-[min(18rem,calc(100vw-2rem))] p-0" align="start">
         <Command shouldFilter={false}>
           <CommandInput placeholder="Buscar…" value={busca} onValueChange={setBusca} />
           <CommandList>

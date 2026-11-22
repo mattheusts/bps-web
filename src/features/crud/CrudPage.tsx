@@ -14,6 +14,8 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Cabecalho, Erro, Vazio } from '@/components/estados'
+import { CampoSelect } from '@/components/filtros/CampoSelect'
+import { CampoCartao } from '@/components/TabelaSimples'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +33,7 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { useParamsUrl } from '@/hooks/use-params-url'
 import { api, mensagemErro } from '@/lib/api'
 import { fmt, truncar } from '@/lib/format'
@@ -64,6 +67,7 @@ function Celula({ coluna: c, linha }: { coluna: ColunaMeta; linha: Registro }) {
 
 function Listagem({ tabela }: { tabela: TabelaMeta }) {
   const queryClient = useQueryClient()
+  const celular = useIsMobile()
   const { valores, definir } = useParamsUrl()
   const [busca, setBusca] = useState(valores.q ?? '')
   const termo = useDebounce(busca)
@@ -131,12 +135,71 @@ function Listagem({ tabela }: { tabela: TabelaMeta }) {
             />
           </div>
 
+          {celular && (
+            <div className="mb-3 flex items-end gap-2">
+              <div className="min-w-0 flex-1">
+                <CampoSelect
+                  rotulo="Ordenar por"
+                  valor={ordem}
+                  todos="Padrão"
+                  aoMudar={(v) => definir({ ordem: v || null, dir: null, pagina: null })}
+                  opcoes={visiveis.map((c) => ({ valor: c.nome, rotulo: c.rotulo }))}
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={!ordem}
+                aria-label={dir === 'asc' ? 'Ordem crescente; inverter' : 'Ordem decrescente; inverter'}
+                onClick={() => ordenar(ordem)}
+              >
+                {dir === 'asc' ? <ArrowUpIcon /> : <ArrowDownIcon />}
+              </Button>
+            </div>
+          )}
+
           {lista.isPending && <Skeleton className="h-96" />}
           {lista.isError && <Erro erro={lista.error} tentar={() => lista.refetch()} />}
           {lista.data && lista.data.linhas.length === 0 && (
             <Vazio titulo="Nenhum registro encontrado" descricao={valores.q ? 'Tente outro termo de busca.' : undefined} />
           )}
-          {lista.data && lista.data.linhas.length > 0 && (
+          {celular && lista.data && lista.data.linhas.length > 0 && (
+            <ul className={cn('grid grid-cols-1 gap-2 transition-opacity md:grid-cols-2', lista.isPlaceholderData && 'opacity-60')}>
+              {lista.data.linhas.map((linha) => {
+                const id = linha[tabela.pk] as string | number
+                return (
+                  <li key={id} className="flex min-w-0 flex-col gap-2 rounded-lg border p-3">
+                    <dl className="grid gap-2">
+                      {visiveis.map((c) => (
+                        <CampoCartao key={c.nome} rotulo={c.rotulo} num={numerica(c)}>
+                          <Celula coluna={c} linha={linha} />
+                        </CampoCartao>
+                      ))}
+                    </dl>
+                    {tabela.podeEscrever && (
+                      <div className="mt-auto flex justify-end gap-2 border-t pt-2">
+                        <Button variant="outline" size="sm" aria-label={`Editar registro ${id}`} onClick={() => setFormulario({ id })}>
+                          <PencilIcon />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          aria-label={`Excluir registro ${id}`}
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setExcluindo(id)}
+                        >
+                          <Trash2Icon />
+                          Excluir
+                        </Button>
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+          {!celular && lista.data && lista.data.linhas.length > 0 && (
             <div className={cn('overflow-x-auto transition-opacity', lista.isPlaceholderData && 'opacity-60')}>
               <Table>
                 <TableHeader>

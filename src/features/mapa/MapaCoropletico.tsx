@@ -92,7 +92,9 @@ export function MapaCoropletico(props: Props) {
         zoom={4}
         zoomSnap={0.25}
         attributionControl={false}
-        className="h-[420px] w-full rounded-lg bg-transparent! md:h-[560px]"
+        // No toque, um dedo rola a página; dois dedos movem e ampliam o mapa.
+        dragging={!L.Browser.mobile}
+        className="h-[min(420px,75svh)] w-full rounded-lg bg-transparent! lg:h-[560px]"
       >
         <Camada {...props} cortes={cortes} />
       </MapContainer>
@@ -111,6 +113,9 @@ export function MapaCoropletico(props: Props) {
           </li>
         </ul>
       </div>
+      {L.Browser.mobile && (
+        <p className="mt-2 text-xs text-muted-foreground">Toque em uma região para abrir. Use dois dedos para mover ou ampliar.</p>
+      )}
     </div>
   )
 }

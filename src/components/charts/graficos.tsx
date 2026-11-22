@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ReferenceLine, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, type ChartConfig } from '@/components/ui/chart'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { truncar } from '@/lib/format'
 
 export interface Serie {
@@ -74,6 +75,7 @@ export function GraficoBarras<T extends object>({
   horizontal,
   referencia,
 }: Base<T> & { horizontal?: boolean; referencia?: { valor: number; rotulo: string } }) {
+  const compacto = useIsMobile()
   return (
     <ChartContainer config={configuracao(series)} className="aspect-auto w-full" style={{ height: altura }}>
       <BarChart data={dados} layout={horizontal ? 'vertical' : 'horizontal'} margin={{ left: 4, right: 12, top: 8 }}>
@@ -84,17 +86,17 @@ export function GraficoBarras<T extends object>({
             <YAxis
               type="category"
               dataKey={categoria as string}
-              width={165}
+              width={compacto ? 112 : 165}
               interval={0}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v: string) => truncar(v, 24)}
+              tickFormatter={(v: string) => truncar(v, compacto ? 18 : 24)}
             />
           </>
         ) : (
           <>
             <XAxis dataKey={categoria as string} tickLine={false} axisLine={false} tickFormatter={formatarCategoria} />
-            <YAxis width={72} tickLine={false} axisLine={false} tickFormatter={formatarEixo} />
+            <YAxis width={compacto ? 58 : 72} tickLine={false} axisLine={false} tickFormatter={formatarEixo} />
           </>
         )}
         <ChartTooltip
@@ -146,12 +148,13 @@ export function GraficoLinhas<T extends object>({
   detalhe,
   altura = 300,
 }: Base<T>) {
+  const compacto = useIsMobile()
   return (
     <ChartContainer config={configuracao(series)} className="aspect-auto w-full" style={{ height: altura }}>
       <LineChart data={dados} margin={{ left: 4, right: 12, top: 8 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey={categoria as string} tickLine={false} axisLine={false} tickFormatter={formatarCategoria} />
-        <YAxis width={72} tickLine={false} axisLine={false} tickFormatter={formatarEixo} />
+        <YAxis width={compacto ? 58 : 72} tickLine={false} axisLine={false} tickFormatter={formatarEixo} />
         <ChartTooltip
           content={(p) => (
             <Dica

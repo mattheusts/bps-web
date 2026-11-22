@@ -207,7 +207,7 @@ export default function MapaPage() {
               aoClicar={aoClicar}
             />
           ) : (
-            <Skeleton className="h-[420px] w-full md:h-[560px]" />
+            <Skeleton className="h-[min(420px,75svh)] w-full lg:h-[560px]" />
           )}
         </Painel>
 

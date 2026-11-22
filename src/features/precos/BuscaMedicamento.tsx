@@ -21,19 +21,19 @@ export function BuscaMedicamento({ rotulo, aoEscolher }: { rotulo: string; aoEsc
   })
 
   return (
-    <div className="grid min-w-0 flex-1 gap-1.5 md:min-w-96">
+    <div className="grid min-w-0 flex-1 grid-cols-1 gap-1.5 lg:min-w-96">
       <Label className="text-xs text-muted-foreground">Medicamento (nome ou CATMAT)</Label>
       <Popover open={aberto} onOpenChange={setAberto}>
         <PopoverTrigger asChild>
-          <Button variant="outline" role="combobox" aria-expanded={aberto} className="w-full justify-between bg-card font-normal">
-            <span className="flex min-w-0 items-center gap-2">
+          <Button variant="outline" role="combobox" aria-expanded={aberto} className="w-full min-w-0 justify-between bg-card font-normal">
+            <span className="flex min-w-0 flex-1 items-center gap-2">
               <SearchIcon className="text-muted-foreground" />
               <span className="truncate">{rotulo || 'Ex.: amoxicilina ou 267510'}</span>
             </span>
             <ChevronsUpDownIcon className="opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-(--radix-popover-trigger-width) min-w-80 p-0" align="start">
+        <PopoverContent className="w-(--radix-popover-trigger-width) min-w-[min(20rem,calc(100vw-2rem))] p-0" align="start">
           <Command shouldFilter={false}>
             <CommandInput placeholder="Digite ao menos 2 caracteres…" value={busca} onValueChange={setBusca} />
             <CommandList>

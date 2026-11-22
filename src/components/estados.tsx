@@ -24,7 +24,7 @@ export function KpiCard({ rotulo, valor, detalhe }: { rotulo: string; valor: str
     <Card className="gap-1 py-4">
       <CardContent className="px-4">
         <p className="text-xs font-medium text-muted-foreground">{rotulo}</p>
-        <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">{valor}</p>
+        <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums sm:text-2xl">{valor}</p>
         {detalhe && <p className="mt-1 text-xs text-muted-foreground">{detalhe}</p>}
       </CardContent>
     </Card>

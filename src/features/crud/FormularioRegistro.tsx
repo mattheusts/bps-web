@@ -186,7 +186,7 @@ function Formulario({
       onSubmit={handleSubmit(({ [CONFIRMACAO_SENHA]: _confirmacao, ...dados }) => salvar.mutate(dados))}
       noValidate
     >
-      <div className="grid max-h-[62vh] gap-4 overflow-y-auto p-1 sm:grid-cols-2">
+      <div className="grid max-h-[62dvh] grid-cols-1 gap-4 overflow-y-auto p-1 sm:grid-cols-2">
         {campos.map((c) => {
           const exigido = c.tipo === 'senha' ? !editando : c.obrigatorio
           return (
@@ -267,7 +267,7 @@ export function FormularioRegistro({
 
   return (
     <Dialog open onOpenChange={(aberto) => !aberto && aoFechar()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-h-[calc(100dvh-1rem)] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {editando ? 'Editar' : 'Novo'} · {tabela.rotulo}
